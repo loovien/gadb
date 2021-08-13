@@ -34,6 +34,10 @@ func NewClientWith(host string, port ...int) (adbClient Client, err error) {
 	return
 }
 
+func (c Client) CommandRun(command string, onlyVerifyResponse ...bool) (string, error) {
+	return c.executeCommand(command, onlyVerifyResponse...)
+}
+
 func (c Client) ServerVersion() (version int, err error) {
 	var resp string
 	if resp, err = c.executeCommand("host:version"); err != nil {

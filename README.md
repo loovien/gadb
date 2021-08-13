@@ -1,17 +1,20 @@
 # gadb
-ADB Client in pure Golang.
+
+ADB Client in pure Golang. fork from github.com/electricbubble/gadb for support all adb command
 
 ## Installation
+
 ```shell script
-go get github.com/electricbubble/gadb
+go get github.com/loovien/gadb
 ```
 
 ## Example
+
 ```go
 package main
 
 import (
-	"github.com/electricbubble/gadb"
+	"github.com/loovien/gadb"
 	"log"
 	"os"
 	"strings"
