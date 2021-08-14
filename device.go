@@ -172,6 +172,7 @@ func (d Device) createDeviceTransport() (tp transport, err error) {
 	return
 }
 
+
 func (d Device) executeCommand(command string, onlyVerifyResponse ...bool) (raw []byte, err error) {
 	if len(onlyVerifyResponse) == 0 {
 		onlyVerifyResponse = []bool{false}

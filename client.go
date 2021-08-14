@@ -53,6 +53,57 @@ func (c Client) ServerVersion() (version int, err error) {
 	return
 }
 
+func (c Client) DeviceTracking(metas ...map[string]string) ([]Device, error) {
+	var (
+		err       error
+		resp      string
+		serials   []string
+		devices   []Device
+		baseMetas = map[string]string{
+			"serial":  "ro.serialno",
+			"name":    "ro.product.name",
+			"model":   "ro.product.model",
+			"brand":   "ro.product.brand",
+			"product": "ro.build.product",
+			"version": "ro.build.version.release",
+		}
+	)
+	if resp, err = c.executeCommand("host:track-devices"); err != nil {
+		return nil, err
+	}
+	var lines = strings.Split(resp, "\n")
+	for _, line := range lines {
+		fields := strings.Fields(line)
+		if len(fields) < 2 {
+			continue
+		}
+		serials = append(serials, fields[0])
+	}
+	for _, serial := range serials {
+		var device = Device{
+			adbClient: c,
+			serial:    serial,
+			attrs:     make(map[string]string),
+		}
+		if len(metas) > 0 {
+			for k, v := range metas[0] {
+				device.attrs[k] = v
+			}
+		}
+		for k, v := range baseMetas {
+			command, err := device.RunShellCommand("getprop", v)
+			if err != nil {
+				debugLog(fmt.Sprintf("get device: %s prop: %s failure. err: %v", serial, k, err))
+				continue
+			}
+			device.attrs[k] = strings.TrimSpace(strings.Trim(command, "\n"))
+		}
+
+		devices = append(devices, device)
+	}
+	return devices, nil
+}
+
 func (c Client) DeviceSerialList() (serials []string, err error) {
 	var resp string
 	if resp, err = c.executeCommand("host:devices"); err != nil {
