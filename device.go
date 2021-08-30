@@ -56,6 +56,7 @@ type DeviceForward struct {
 type Device struct {
 	adbClient Client
 	serial    string
+	mac       string
 	attrs     map[string]string
 }
 
@@ -171,7 +172,6 @@ func (d Device) createDeviceTransport() (tp transport, err error) {
 	err = tp.VerifyResponse()
 	return
 }
-
 
 func (d Device) executeCommand(command string, onlyVerifyResponse ...bool) (raw []byte, err error) {
 	if len(onlyVerifyResponse) == 0 {
@@ -297,4 +297,8 @@ func (d Device) Pull(remotePath string, dest io.Writer) (err error) {
 
 	err = sync.WriteStream(dest)
 	return
+}
+
+func (d Device) MacAddr(dev string) (string, error) {
+	return  d.RunShellCommand(fmt.Sprintf("cat /sys/class/net/%s/address", dev))
 }
